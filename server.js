@@ -1,4 +1,3 @@
-/* This JavaScript code snippet is setting up a Node.js server using Express framework and connecting it to a MongoDB database using Mongoose. Here's a breakdown of what the code is doing: */
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -11,6 +10,8 @@ mongoose.connect('mongodb+srv://s3978535:RedPoint2905@rmitmatchfinding.tt8ia78.m
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
+
+
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', () => {
@@ -78,5 +79,3 @@ app.post('/findTeammate', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-
