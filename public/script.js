@@ -253,6 +253,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 listItem.innerHTML = `
                     <p>Name: ${student.name}</p>
                     <p>Date of Birth: ${student.dob}</p>
+                    <p>University Email: ${student.universityEmail}</p>
                     <p>Courses:</p>
                     <ul>
                         ${student.courses.map(course => `<li>${course.courseTitle} - Desired GPA: ${course.desiredGPA}</li>`).join("")}
