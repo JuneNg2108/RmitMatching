@@ -1,81 +1,275 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
+document.addEventListener("DOMContentLoaded", function() {
+    const addCourseBtn = document.getElementById("addCourse");
+    const coursesContainer = document.getElementById("courses");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+    addCourseBtn.addEventListener("click", function() {
+        addCourse();
+    });
 
-// MongoDB connection
-mongoose.connect('mongodb+srv://s3978535:RedPoint2905@rmitmatchfinding.tt8ia78.mongodb.net/test', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
-
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', () => {
-    console.log('Connected to MongoDB');
-});
-
-// Define a mongoose schema for the student data
-const studentSchema = new mongoose.Schema({
-    name: String,
-    studentID: String,
-    dob: Date,
-    universityEmail: String,
-    interests: String,
-    overallGPA: Number,
-    courses: [{
-        courseTitle: String,
-        desiredGPA: String,
-        notes: String
-    }]
-});
-
-const Student = mongoose.model('Student', studentSchema);
-
-// Middleware to parse JSON bodies
-app.use(express.json());
-
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Route to handle form submission
-app.post('/submit', async (req, res) => {
-    try {
-        const studentData = req.body; // Assuming the form data is sent as JSON
-        const student = new Student(studentData);
-        await student.save();
-        res.status(201).send('Student data saved successfully!');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal server error');
+    function addCourse() {
+        const courseDiv = document.createElement("div");
+        courseDiv.classList.add("course");
+    
+        const courseFields = `
+            <label for="courseTitle">Course:</label>
+            <input type="text" class="courseTitle" name="courseTitle[]" required>
+            
+            <label for="desiredGPA">Desired GPA:</label>
+            <select class="desiredGPA" name="desiredGPA[]">
+                <option value="HD">HD (80-100)</option>
+                <option value="DI">DI (70-79)</option>
+                <option value="CR">CR (60-69)</option>
+                <option value="PA">PA (50-59)</option>
+            </select>
+    
+            <label for="notes">Notes:</label>
+            <textarea class="notes" name="notes[]" rows="2" cols="30"></textarea>
+    
+            <button type="button" class="removeCourse">Remove Course</button>
+        `;
+    
+        courseDiv.innerHTML = courseFields;
+    
+        coursesContainer.appendChild(courseDiv);
+    
+        // Set up event listeners for the new course title input
+        const courseTitleInput = courseDiv.querySelector(".courseTitle");
+        const dropdownMenu = document.createElement("div");
+        dropdownMenu.classList.add("dropdown-menu");
+        courseTitleInput.parentNode.insertBefore(dropdownMenu, courseTitleInput.nextSibling);
+    
+        // Add functionality to remove the course
+        const removeCourseBtn = courseDiv.querySelector(".removeCourse");
+        removeCourseBtn.addEventListener("click", function() {
+            coursesContainer.removeChild(courseDiv);
+        });
+    
+        // Fetch data from courses.json
+        fetch("courses.json")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                const courses = Object.values(data);
+                courseTitleInput.addEventListener("input", function() {
+                    const userInput = courseTitleInput.value.toLowerCase();
+                    const filteredCourses = courses.filter(course => {
+                        return course && 
+                            course["COURSE CODE"] && 
+                            course["COURSE TITLE"] &&
+                            (course["COURSE CODE"].toLowerCase().includes(userInput) ||
+                            course["COURSE TITLE"].toLowerCase().includes(userInput));
+                    });
+                
+                    // Display filtered courses in the dropdown menu
+                    renderDropdown(filteredCourses, dropdownMenu, courseTitleInput);
+                });
+                // After fetching data, set visibility to visible
+                courseDiv.style.display = "block";
+            })
+            .catch(error => console.error("Error fetching data:", error)); // Catch any errors during the fetch request
     }
-});
-// Route to handle finding teammates
-app.post('/findTeammate', async (req, res) => {
-    try {
-        // Get the course data from the request body
-        const { courses } = req.body;
+    
+    
+    // Adjust the renderDropdown function to match the expected course object structure
+function renderDropdown(courses, dropdownMenu, courseTitleInput) {
+    dropdownMenu.innerHTML = "";
+    if (courses.length > 0) {
+        dropdownMenu.style.display = "block";
+        courses.forEach(course => {
+            const option = document.createElement("div");
+            option.classList.add("dropdown-item");
+            // Update to match the expected properties by the server
+            option.textContent = `${course["COURSE CODE"]} - ${course["COURSE TITLE"]} (${course["CAMPUS"]} - ${course["SEMESTER"]})`;
+            option.addEventListener("click", function() {
+                if (courseTitleInput) {
+                    // Update to set the course title input value appropriately
+                    courseTitleInput.value = `${course["COURSE CODE"]} - ${course["COURSE TITLE"]} (${course["CAMPUS"]} - ${course["SEMESTER"]})`;
+                }
+                if (dropdownMenu) {
+                    dropdownMenu.style.display = "none";
+                }
+            });
+            dropdownMenu.appendChild(option);
+        });
+    } else {
+        dropdownMenu.style.display = "none";
+    }
+}
 
-        // Query MongoDB for students with similar courses
-        const matchingStudents = await Student.find({ 'courses.courseTitle': { $in: courses.map(course => course.courseTitle) } });
-
-        if (matchingStudents.length === 0) {
-            return res.status(200).json({ message: "No student with similar data found" });
+    // Close the dropdown menu when clicking outside of it
+    document.addEventListener("click", function(event) {
+        if (!event.target.matches(".courseTitle") && !event.target.matches(".dropdown-item")) {
+            const dropdownMenus = document.querySelectorAll(".dropdown-menu");
+            dropdownMenus.forEach(dropdownMenu => {
+                if (dropdownMenu) {
+                    dropdownMenu.style.display = "none";
+                }
+            });
         }
+    });
 
-        // Return the list of matching students
-        res.status(200).json(matchingStudents);
-    } catch (error) {
+    // Form submission handling
+    const form = document.getElementById("teamFormationForm");
+    form.addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Collect form data
+        const formData = new FormData(form);
+const studentData = {
+    name: formData.get('name'),
+    studentID: formData.get('studentID'),
+    dob: formData.get('dob'),
+    universityEmail: formData.get('universityEmail'),
+    interests: formData.get('interests'),
+    overallGPA: parseFloat(formData.get('overallGPA')),
+    courseTitle: Array.from(formData.getAll('courseTitle')), // Ensure courseTitle is sent as an array
+    courses: []
+};
+
+        // Retrieve course data
+        const courseDivs = document.querySelectorAll('.course');
+        courseDivs.forEach(courseDiv => {
+            const courseTitleInput = courseDiv.querySelector('.courseTitle');
+            const courseTitle = courseTitleInput ? courseTitleInput.value : ''; // Get the original course title or an empty string if element not found
+            
+            // Retrieve other course information
+            const desiredGPAInput = courseDiv.querySelector('.desiredGPA');
+            const desiredGPA = desiredGPAInput ? desiredGPAInput.value : '';
+            
+            const notesInput = courseDiv.querySelector('.notes');
+            const notes = notesInput ? notesInput.value : '';
+
+            // Check if campus and semester elements exist before accessing their values
+            const campusInput = courseDiv.querySelector('.campus');
+            const campus = campusInput ? campusInput.value : '';
+
+            const semesterInput = courseDiv.querySelector('.semester');
+            const semester = semesterInput ? semesterInput.value : '';
+
+            // Modify the course title before pushing it into the studentData.courses array
+            const modifiedCourseTitle = `${courseTitle} (${campus} - ${semester})`;
+
+            studentData.courses.push({ courseTitle: modifiedCourseTitle, desiredGPA, notes });
+        });
+
+        // Submit form data asynchronously using fetch
+        fetch("/submit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(studentData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.text(); // Assuming the response is text
+        })
+        .then(data => {
+            console.log("Form submitted successfully:", data);
+            // Optionally, display a success message to the user
+        })
+        .catch(error => {
+            console.error("Error submitting form:", error);
+            // Optionally, display an error message to the user
+        });
+    });
+
+    // Find Teammate button click event handling
+    // Find Teammate button click event handling
+const findTeammateBtn = document.getElementById("findTeammateBtn");
+findTeammateBtn.addEventListener("click", function(event) {
+    event.preventDefault();
+    // Collect course data from the UI
+    const courses = Array.from(document.querySelectorAll('.course')).map(courseDiv => {
+        const courseTitleInput = courseDiv.querySelector('.courseTitle');
+        const courseTitle = courseTitleInput ? courseTitleInput.value : '';
+
+        // Retrieve other course information
+        const desiredGPAInput = courseDiv.querySelector('.desiredGPA');
+        const desiredGPA = desiredGPAInput ? desiredGPAInput.value : '';
+
+        const notesInput = courseDiv.querySelector('.notes');
+        const notes = notesInput ? notesInput.value : '';
+
+        return {
+            courseTitle,
+            desiredGPA,
+            notes
+        };
+    });
+
+    // Collect student data
+    const formData = new FormData(document.getElementById("teamFormationForm"));
+    const studentData = {
+        name: formData.get('name'),
+        studentID: formData.get('studentID'),
+        dob: formData.get('dob'),
+        universityEmail: formData.get('universityEmail'),
+        interests: formData.get('interests'),
+        overallGPA: parseFloat(formData.get('overallGPA')),
+        courses
+    };
+
+    // Send the data to the server for finding teammates
+    fetch("/findTeammate", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(studentData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.message === "No student with similar data found") {
+            alert(data.message);
+        } else {
+            // Display the list of matching students
+            displayMatchingStudents(data);
+        }
+    })
+    .catch(error => {
         console.error("Error finding matching students:", error);
-        res.status(500).json({ message: "Internal server error" });
+        alert("Error finding matching students. Please try again later.");
+    });
+});
+
+// Function to display the list of matching students
+function displayMatchingStudents(students) {
+    const resultList = document.getElementById("resultList");
+    resultList.innerHTML = ""; // Clear any previous results
+    
+    if (students.length === 0) {
+        // If no matching students found, display a message
+        resultList.innerHTML = "<p>No student with similar data found</p>";
+    } else {
+        // Iterate over each matching student and create a list item for them
+        students.forEach(student => {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `
+                <p>Name: ${student.name}</p>
+                <p>Date of Birth: ${student.dob}</p>
+                <p>University Email: ${student.universityEmail}</p>
+                <p>GPA: ${student.overallGPA}</p>
+                <p>Courses:</p>
+                <ul>
+                    ${student.courses.map(course => `<li>${course.courseTitle} - Desired GPA: ${course.desiredGPA}</li>`).join("")}
+                </ul>
+            `;
+            resultList.appendChild(listItem);
+        });
     }
+}
+
 });
 
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
