@@ -180,10 +180,9 @@ const studentData = {
         });
     });
 
-    // Find Teammate button click event handling
-    // Find Teammate button click event handling
+// Find Teammate button click event handling
 const findTeammateBtn = document.getElementById("findTeammateBtn");
-findTeammateBtn.addEventListener("click", function(event) {
+findTeammateBtn.addEventListener("click", async function(event) {
     event.preventDefault();
     // Collect course data from the UI
     const courses = Array.from(document.querySelectorAll('.course')).map(courseDiv => {
@@ -218,52 +217,67 @@ findTeammateBtn.addEventListener("click", function(event) {
     };
     
     // Send the data to the server for finding teammates
-    fetch("/findTeammate", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(studentData)
-    })
-    .then(response => {
+    try {
+        const response = await fetch("/findTeammate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(studentData)
+        });
+
         if (!response.ok) {
             throw new Error("Network response was not ok");
         }
-        return response.json();
-    })
-    .then(data => {
+
+        const data = await response.json();
+
         if (data.message === "No student with similar data found") {
             alert(data.message);
         } else {
-            // Display the list of matching students
+            // Display the list of matching students in a closeable container
             displayMatchingStudents(data);
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error("Error finding matching students:", error);
         alert("Error finding matching students. Please try again later.");
-    });
+    }
 });
 
-// Function to display the list of matching students
+// Function to display the list of matching students in a closeable container
 function displayMatchingStudents(students) {
-    const resultList = document.getElementById("resultList");
-    resultList.innerHTML = ""; // Clear any previous results
-    
+    const container = document.createElement("div");
+    container.classList.add("container");
+
+    const overlay = document.createElement("div");
+    overlay.classList.add("overlay");
+
+    const closeButton = document.createElement("button");
+    closeButton.textContent = "Close";
+    closeButton.classList.add("close-button");
+    closeButton.addEventListener("click", function() {
+        document.body.removeChild(overlay);
+    });
+
+    const resultList = document.createElement("ul");
+    resultList.classList.add("result-list");
+
     if (students.length === 0) {
         // If no matching students found, display a message
-        resultList.innerHTML = "<p>No student with similar data found</p>";
+        const listItem = document.createElement("li");
+        listItem.textContent = "No student with similar data found";
+        resultList.appendChild(listItem);
     } else {
         // Iterate over each matching student and create a list item for them
         students.forEach(student => {
             const listItem = document.createElement("li");
             listItem.innerHTML = `
-                <p>Name: ${student.name}</p>
-                <p>Student ID: ${student.studentID}</p>
-                <p>mobile: ${student.mobile}</p>
-                <p>University Email: ${student.universityEmail}</p>
-                <p>GPA: ${student.overallGPA}</p>
-                <p>Courses:</p>
+                <p><strong>Name:</strong> ${student.name}</p>
+                <p><strong>Student ID:</strong> ${student.studentID}</p>
+                <p><strong>Mobile:</strong> ${student.mobile}</p>
+                <p><strong>University Email:</strong> ${student.universityEmail}</p>
+                <p><strong>GPA:</strong> ${student.overallGPA}</p>
+                <p><strong>Courses:</strong></p>
                 <ul>
                     ${student.courses.map(course => `<li>${course.courseTitle} - Desired GPA: ${course.desiredGPA}</li>`).join("")}
                 </ul>
@@ -271,6 +285,11 @@ function displayMatchingStudents(students) {
             resultList.appendChild(listItem);
         });
     }
+
+    overlay.appendChild(container);
+    container.appendChild(closeButton);
+    container.appendChild(resultList);
+    document.body.appendChild(overlay);
 }
 
 });
