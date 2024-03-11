@@ -209,13 +209,14 @@ findTeammateBtn.addEventListener("click", function(event) {
     const studentData = {
         name: formData.get('name'),
         studentID: formData.get('studentID'),
-        dob: formData.get('dob'),
+        mobile: formData.get('mobile'), // Add mobile phone number field
         universityEmail: formData.get('universityEmail'),
         interests: formData.get('interests'),
         overallGPA: parseFloat(formData.get('overallGPA')),
-        courses
+        courseTitle: Array.from(formData.getAll('courseTitle')), // Ensure courseTitle is sent as an array
+        courses: []
     };
-
+    
     // Send the data to the server for finding teammates
     fetch("/findTeammate", {
         method: "POST",
@@ -258,7 +259,8 @@ function displayMatchingStudents(students) {
             const listItem = document.createElement("li");
             listItem.innerHTML = `
                 <p>Name: ${student.name}</p>
-                <p>Date of Birth: ${student.dob}</p>
+                <p>Student ID: ${student.studentID}</p>
+                <p>mobile: ${student.mobile}</p>
                 <p>University Email: ${student.universityEmail}</p>
                 <p>GPA: ${student.overallGPA}</p>
                 <p>Courses:</p>
