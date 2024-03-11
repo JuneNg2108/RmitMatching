@@ -1,97 +1,106 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom right, #c8102e, #005eb8); /* Gradient background combining RMIT red and blue */
 }
 
 h1 {
     text-align: center;
+    color: #ffffff; /* White text color */
 }
 
 form {
     width: 80%;
     margin: auto;
-    background-color: #fff;
-    padding: 20px;
+    background-color: #ffffff; /* White background */
+    padding: 40px; /* Increased padding for better separation */
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Increased shadow effect */
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 10px; /* Increased margin for better spacing */
     font-weight: bold;
+    color: #c8102e; /* RMIT red */
 }
 
 /* Adjusting margin for the "Overall GPA" label */
 label[for="overallGPA"] {
-    margin-bottom: 20px;
+    margin-bottom: 30px; /* Increased margin for better separation */
 }
 
 input[type="text"],
 input[type="email"],
 input[type="date"],
+input[type="tel"],
+input[type="number"],
 select,
 textarea {
-    width: calc(100% - 20px);
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    width: calc(100% - 20px); /* Adjusted width for better consistency */
+    padding: 12px; /* Increased padding for larger input fields */
+    margin-bottom: 20px; /* Increased margin for better spacing */
+    border: 2px solid #005eb8; /* RMIT blue border */
+    border-radius: 6px;
     box-sizing: border-box;
+    font-size: 16px; /* Increased font size for better readability */
+    color: #000000; /* Black text color */
+    background-color: #ffffff; /* White background */
 }
 
-input[type="number"] {
-    width: 100px;
+label[for="universityEmail"] {
+    margin-bottom: 10px; /* Adjusted margin-bottom */
 }
 
 button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+    padding: 14px 24px; /* Increased padding for larger buttons */
+    background-color: #c8102e; /* RMIT red */
+    color: #ffffff; /* White text color */
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 20px; /* Increased margin for better spacing */
+    font-size: 18px; /* Increased font size for better readability */
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #750e1a; /* Darker shade of RMIT red on hover */
 }
 
 #courses {
-    margin-top: 20px;
+    margin-top: 30px; /* Increased margin for better separation */
 }
 
 .course {
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+    margin-bottom: 20px; /* Increased margin for better spacing */
+    border: 2px solid #c8102e; /* RMIT red border */
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffffff; /* White background */
 }
 
 .removeCourse {
-    background-color: #f44336;
-    color: white;
+    background-color: #005eb8; /* RMIT blue */
+    color: #ffffff; /* White text color */
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin-top: 5px;
+    margin-top: 20px; /* Increased margin for better spacing */
+    padding: 14px 24px; /* Increased padding for larger buttons */
+    font-size: 16px; /* Increased font size for better readability */
 }
 
 .removeCourse:hover {
-    background-color: #da190b;
+    background-color: #002649; /* Darker shade of RMIT blue on hover */
 }
-
-/* Styling for dropdown menu */
 .dropdown-menu {
     position: absolute;
     width: calc(100% - 20px);
     max-height: 200px;
     overflow-y: auto;
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: #ffffff; /* White background */
+    border: 1px solid #c8102e; /* RMIT red border */
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1;
@@ -107,7 +116,6 @@ button:hover {
     background-color: #f2f2f2;
 }
 
-/* Adjusting position and width of dropdown menu */
 .courseTitle {
     width: calc(100% - 110px); /* Adjusted width to accommodate dropdown menu */
 }
@@ -118,15 +126,99 @@ button:hover {
 
 
 #findTeammateBtn {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
+    background-color: #005eb8; /* RMIT blue */
+    color: #ffffff; /* White text color */
+    padding: 14px 24px; /* Increased padding for larger buttons */
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px; /* Increased font size for better readability */
 }
 
 #findTeammateBtn:hover {
-    background-color: #0056b3;
+    background-color: #002649; /* Darker shade of RMIT blue on hover */
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Ensure it's above other content */
+}
+
+.container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
+    max-width: 80%; /* Limit container width */
+    max-height: 80%; /* Limit container height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    z-index: 9999; /* Ensure it's above other content */
+}
+
+
+.close-button {
+    position: absolute;
+    top: -10px; /* Move the close button higher */
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 24px; /* Increased font size */
+    z-index: 99999; /* Ensure it's above other content */
+    color: #888888; /* Grey color */
+}
+
+.close-button:hover {
+    color: #333333; /* Darker shade of grey on hover */
+}
+
+.result-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.result-list li {
+    margin-bottom: 30px; /* Increased margin between data boxes */
+    padding: 20px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Drop shadow effect */
+}
+
+
+.result-list li:last-child {
+    margin-bottom: 0;
+}
+
+.result-list li p {
+    margin: 0;
+    font-size: 18px;
+    line-height: 2.0; /* Increased line height for better readability */
+}
+
+.result-list li p strong {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.result-list li .course-info {
+    margin-top: 15px; /* Increased margin */
+    font-size: 16px;
+    color: #555555; /* Dark grey color */
+}
+
+.result-list li .course-info:last-child {
+    margin-bottom: 15px; /* Increased margin */
 }
