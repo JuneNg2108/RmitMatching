@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function addCourse() {
         const courseDiv = document.createElement("div");
         courseDiv.classList.add("course");
-    
+
         const courseFields = `
             <label for="courseTitle">Course:</label>
             <input type="text" class="courseTitle" name="courseTitle[]" required>
@@ -27,24 +27,21 @@ document.addEventListener("DOMContentLoaded", function() {
     
             <button type="button" class="removeCourse">Remove Course</button>
         `;
-    
+
         courseDiv.innerHTML = courseFields;
-    
+
         coursesContainer.appendChild(courseDiv);
-    
-        // Set up event listeners for the new course title input
+
         const courseTitleInput = courseDiv.querySelector(".courseTitle");
         const dropdownMenu = document.createElement("div");
         dropdownMenu.classList.add("dropdown-menu");
         courseTitleInput.parentNode.insertBefore(dropdownMenu, courseTitleInput.nextSibling);
-    
-        // Add functionality to remove the course
+
         const removeCourseBtn = courseDiv.querySelector(".removeCourse");
         removeCourseBtn.addEventListener("click", function() {
             coursesContainer.removeChild(courseDiv);
         });
-    
-        // Fetch data from courses.json
+
         fetch("courses.json")
             .then(response => {
                 if (!response.ok) {
@@ -63,44 +60,36 @@ document.addEventListener("DOMContentLoaded", function() {
                             (course["COURSE CODE"].toLowerCase().includes(userInput) ||
                             course["COURSE TITLE"].toLowerCase().includes(userInput));
                     });
-                
-                    // Display filtered courses in the dropdown menu
                     renderDropdown(filteredCourses, dropdownMenu, courseTitleInput);
                 });
-                // After fetching data, set visibility to visible
                 courseDiv.style.display = "block";
             })
-            .catch(error => console.error("Error fetching data:", error)); // Catch any errors during the fetch request
+            .catch(error => console.error("Error fetching data:", error));
     }
-    
-    
-    // Adjust the renderDropdown function to match the expected course object structure
-function renderDropdown(courses, dropdownMenu, courseTitleInput) {
-    dropdownMenu.innerHTML = "";
-    if (courses.length > 0) {
-        dropdownMenu.style.display = "block";
-        courses.forEach(course => {
-            const option = document.createElement("div");
-            option.classList.add("dropdown-item");
-            // Update to match the expected properties by the server
-            option.textContent = `${course["COURSE CODE"]} - ${course["COURSE TITLE"]} (${course["CAMPUS"]} - ${course["SEMESTER"]})`;
-            option.addEventListener("click", function() {
-                if (courseTitleInput) {
-                    // Update to set the course title input value appropriately
-                    courseTitleInput.value = `${course["COURSE CODE"]} - ${course["COURSE TITLE"]} (${course["CAMPUS"]} - ${course["SEMESTER"]})`;
-                }
-                if (dropdownMenu) {
-                    dropdownMenu.style.display = "none";
-                }
-            });
-            dropdownMenu.appendChild(option);
-        });
-    } else {
-        dropdownMenu.style.display = "none";
-    }
-}
 
-    // Close the dropdown menu when clicking outside of it
+    function renderDropdown(courses, dropdownMenu, courseTitleInput) {
+        dropdownMenu.innerHTML = "";
+        if (courses.length > 0) {
+            dropdownMenu.style.display = "block";
+            courses.forEach(course => {
+                const option = document.createElement("div");
+                option.classList.add("dropdown-item");
+                option.textContent = `${course["COURSE CODE"]} - ${course["COURSE TITLE"]} (${course["CAMPUS"]} - ${course["SEMESTER"]})`;
+                option.addEventListener("click", function() {
+                    if (courseTitleInput) {
+                        courseTitleInput.value = `${course["COURSE CODE"]} - ${course["COURSE TITLE"]} (${course["CAMPUS"]} - ${course["SEMESTER"]})`;
+                    }
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = "none";
+                    }
+                });
+                dropdownMenu.appendChild(option);
+            });
+        } else {
+            dropdownMenu.style.display = "none";
+        }
+    }
+
     document.addEventListener("click", function(event) {
         if (!event.target.matches(".courseTitle") && !event.target.matches(".dropdown-item")) {
             const dropdownMenus = document.querySelectorAll(".dropdown-menu");
@@ -112,51 +101,44 @@ function renderDropdown(courses, dropdownMenu, courseTitleInput) {
         }
     });
 
-    // Form submission handling
     const form = document.getElementById("teamFormationForm");
     form.addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
 
-        // Collect form data
         const formData = new FormData(form);
-const studentData = {
-    name: formData.get('name'),
-    studentID: formData.get('studentID'),
-    dob: formData.get('dob'),
-    universityEmail: formData.get('universityEmail'),
-    interests: formData.get('interests'),
-    overallGPA: parseFloat(formData.get('overallGPA')),
-    courseTitle: Array.from(formData.getAll('courseTitle')), // Ensure courseTitle is sent as an array
-    courses: []
-};
+        const studentData = {
+            name: formData.get('name'),
+            studentID: formData.get('studentID'),
+            mobile: formData.get('mobile'),
+            universityEmail: formData.get('universityEmail'),
+            interests: formData.get('interests'),
+            overallGPA: parseFloat(formData.get('overallGPA')),
+            courseTitle: Array.from(formData.getAll('courseTitle')),
+            courses: []
+        };
 
-        // Retrieve course data
         const courseDivs = document.querySelectorAll('.course');
         courseDivs.forEach(courseDiv => {
             const courseTitleInput = courseDiv.querySelector('.courseTitle');
-            const courseTitle = courseTitleInput ? courseTitleInput.value : ''; // Get the original course title or an empty string if element not found
-            
-            // Retrieve other course information
+            const courseTitle = courseTitleInput ? courseTitleInput.value : '';
+
             const desiredGPAInput = courseDiv.querySelector('.desiredGPA');
             const desiredGPA = desiredGPAInput ? desiredGPAInput.value : '';
-            
+
             const notesInput = courseDiv.querySelector('.notes');
             const notes = notesInput ? notesInput.value : '';
 
-            // Check if campus and semester elements exist before accessing their values
             const campusInput = courseDiv.querySelector('.campus');
             const campus = campusInput ? campusInput.value : '';
 
             const semesterInput = courseDiv.querySelector('.semester');
             const semester = semesterInput ? semesterInput.value : '';
 
-            // Modify the course title before pushing it into the studentData.courses array
             const modifiedCourseTitle = `${courseTitle} (${campus} - ${semester})`;
 
             studentData.courses.push({ courseTitle: modifiedCourseTitle, desiredGPA, notes });
         });
 
-        // Submit form data asynchronously using fetch
         fetch("/submit", {
             method: "POST",
             headers: {
@@ -168,129 +150,218 @@ const studentData = {
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
-            return response.text(); // Assuming the response is text
+            return response.text();
         })
         .then(data => {
             console.log("Form submitted successfully:", data);
-            // Optionally, display a success message to the user
         })
         .catch(error => {
             console.error("Error submitting form:", error);
-            // Optionally, display an error message to the user
         });
     });
 
-// Find Teammate button click event handling
-const findTeammateBtn = document.getElementById("findTeammateBtn");
-findTeammateBtn.addEventListener("click", async function(event) {
-    event.preventDefault();
-    // Collect course data from the UI
-    const courses = Array.from(document.querySelectorAll('.course')).map(courseDiv => {
-        const courseTitleInput = courseDiv.querySelector('.courseTitle');
-        const courseTitle = courseTitleInput ? courseTitleInput.value : '';
+    const findTeammateBtn = document.getElementById("findTeammateBtn");
+    findTeammateBtn.addEventListener("click", async function(event) {
+        event.preventDefault();
+        
+        const courses = Array.from(document.querySelectorAll('.course')).map(courseDiv => {
+            const courseTitleInput = courseDiv.querySelector('.courseTitle');
+            const courseTitle = courseTitleInput ? courseTitleInput.value : '';
 
-        // Retrieve other course information
-        const desiredGPAInput = courseDiv.querySelector('.desiredGPA');
-        const desiredGPA = desiredGPAInput ? desiredGPAInput.value : '';
+            const desiredGPAInput = courseDiv.querySelector('.desiredGPA');
+            const desiredGPA = desiredGPAInput ? desiredGPAInput.value : '';
 
-        const notesInput = courseDiv.querySelector('.notes');
-        const notes = notesInput ? notesInput.value : '';
+            const notesInput = courseDiv.querySelector('.notes');
+            const notes = notesInput ? notesInput.value : '';
 
-        return {
-            courseTitle,
-            desiredGPA,
-            notes
+            return {
+                courseTitle,
+                desiredGPA,
+                notes
+            };
+        });
+
+        const formData = new FormData(document.getElementById("teamFormationForm"));
+        const studentData = {
+            name: formData.get('name'),
+            studentID: formData.get('studentID'),
+            mobile: formData.get('mobile'),
+            universityEmail: formData.get('universityEmail'),
+            interests: formData.get('interests'),
+            overallGPA: parseFloat(formData.get('overallGPA')),
+            courseTitle: Array.from(formData.getAll('courseTitle')),
+            courses: []
         };
+
+        try {
+            const response = await fetch("/findTeammate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(studentData)
+            });
+
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const data = await response.json();
+
+            if (data.message === "No student with similar data found") {
+                alert(data.message);
+            } else {
+                displayMatchingStudents(data);
+            }
+        } catch (error) {
+            console.error("Error finding matching students:", error);
+            alert("Error finding matching students. Please try again later.");
+        }
     });
 
-    // Collect student data
-    const formData = new FormData(document.getElementById("teamFormationForm"));
-    const studentData = {
-        name: formData.get('name'),
-        studentID: formData.get('studentID'),
-        mobile: formData.get('mobile'), // Add mobile phone number field
-        universityEmail: formData.get('universityEmail'),
-        interests: formData.get('interests'),
-        overallGPA: parseFloat(formData.get('overallGPA')),
-        courseTitle: Array.from(formData.getAll('courseTitle')), // Ensure courseTitle is sent as an array
-        courses: []
-    };
-    
-    // Send the data to the server for finding teammates
-    try {
-        const response = await fetch("/findTeammate", {
+    function displayMatchingStudents(students) {
+        const container = document.createElement("div");
+        container.classList.add("container");
+
+        const overlay = document.createElement("div");
+        overlay.classList.add("overlay");
+
+        const closeButton = document.createElement("button");
+        closeButton.textContent = "Close";
+        closeButton.classList.add("close-button");
+        closeButton.addEventListener("click", function() {
+            document.body.removeChild(overlay);
+        });
+
+        const resultList = document.createElement("ul");
+        resultList.classList.add("result-list");
+
+        if (students.length === 0) {
+            const listItem = document.createElement("li");
+            listItem.textContent = "No student with similar data found";
+            resultList.appendChild(listItem);
+        } else {
+            students.forEach(student => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                    <p><strong>Name:</strong> ${student.name}</p>
+                    <p><strong>Student ID:</strong> ${student.studentID}</p>
+                    <p><strong>Mobile:</strong> ${student.mobile}</p>
+                    <p><strong>University Email:</strong> ${student.universityEmail}</p>
+                    <p><strong>GPA:</strong> ${student.overallGPA}</p>
+                    <p><strong>Courses:</strong></p>
+                    <ul>
+                        ${student.courses.map(course => `<li>${course.courseTitle} - Desired GPA: ${course.desiredGPA}</li>`).join("")}
+                    </ul>
+                `;
+
+                const connectButton = document.createElement("button");
+                connectButton.textContent = "Connect";
+                connectButton.classList.add("connectButton");
+                connectButton.dataset.studentId = student.studentID;
+                connectButton.addEventListener("click", function() {
+                    connectWithTeammate(student.studentID);
+                });
+
+                listItem.appendChild(connectButton);
+                resultList.appendChild(listItem);
+            });
+        }
+
+        overlay.appendChild(container);
+        container.appendChild(closeButton);
+        container.appendChild(resultList);
+        document.body.appendChild(overlay);
+    }
+
+    function connectWithTeammate(studentID) {
+        fetch(`/connect/${studentID}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(studentData)
+            body: JSON.stringify({ studentID })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Connection data:", data);
+            if (data && data.student1 && data.student2) {
+                displayChatBox(data.student1, data.student2);
+            } else {
+                console.error("Error: Invalid data received from the server.");
+            }
+        })
+        .catch(error => {
+            console.error("Error connecting with teammate:", error);
         });
+    }
+    
 
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+    function displayChatBox(student1, student2) {
+        if (!student1 || !student2) {
+            console.error("One or both students are undefined.");
+            return;
         }
-
-        const data = await response.json();
-
-        if (data.message === "No student with similar data found") {
-            alert(data.message);
-        } else {
-            // Display the list of matching students in a closeable container
-            displayMatchingStudents(data);
+    
+        const chatBoxId = `${student1.studentID}-${student2.studentID}`;
+        let chatBox = document.getElementById(chatBoxId);
+        if (!chatBox) {
+            chatBox = document.createElement("div");
+            chatBox.id = chatBoxId;
+            chatBox.classList.add("chat-box");
+    
+            const messagesContainer = document.createElement("div");
+            messagesContainer.classList.add("messages-container");
+    
+            const inputField = document.createElement("input");
+            inputField.classList.add("message-input");
+            inputField.setAttribute("placeholder", "Type your message...");
+    
+            const sendButton = document.createElement("button");
+            sendButton.textContent = "Send";
+            sendButton.classList.add("send-button");
+    
+            chatBox.appendChild(messagesContainer);
+            chatBox.appendChild(inputField);
+            chatBox.appendChild(sendButton);
+    
+            document.body.appendChild(chatBox);
+    
+            sendButton.addEventListener("click", () => {
+                sendMessage(student1, student2, inputField.value);
+            });
         }
-    } catch (error) {
-        console.error("Error finding matching students:", error);
-        alert("Error finding matching students. Please try again later.");
+    }
+    
+
+    function sendMessage(sender, receiver, message) {
+        fetch("/send-message", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sender, receiver, message })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+        })
+        .catch(error => {
+            console.error("Error sending message:", error);
+        });
     }
 });
 
-// Function to display the list of matching students in a closeable container
-function displayMatchingStudents(students) {
-    const container = document.createElement("div");
-    container.classList.add("container");
 
-    const overlay = document.createElement("div");
-    overlay.classList.add("overlay");
-
-    const closeButton = document.createElement("button");
-    closeButton.textContent = "Close";
-    closeButton.classList.add("close-button");
-    closeButton.addEventListener("click", function() {
-        document.body.removeChild(overlay);
-    });
-
-    const resultList = document.createElement("ul");
-    resultList.classList.add("result-list");
-
-    if (students.length === 0) {
-        // If no matching students found, display a message
-        const listItem = document.createElement("li");
-        listItem.textContent = "No student with similar data found";
-        resultList.appendChild(listItem);
-    } else {
-        // Iterate over each matching student and create a list item for them
-        students.forEach(student => {
-            const listItem = document.createElement("li");
-            listItem.innerHTML = `
-                <p><strong>Name:</strong> ${student.name}</p>
-                <p><strong>Student ID:</strong> ${student.studentID}</p>
-                <p><strong>Mobile:</strong> ${student.mobile}</p>
-                <p><strong>University Email:</strong> ${student.universityEmail}</p>
-                <p><strong>GPA:</strong> ${student.overallGPA}</p>
-                <p><strong>Courses:</strong></p>
-                <ul>
-                    ${student.courses.map(course => `<li>${course.courseTitle} - Desired GPA: ${course.desiredGPA}</li>`).join("")}
-                </ul>
-            `;
-            resultList.appendChild(listItem);
-        });
-    }
-
-    overlay.appendChild(container);
-    container.appendChild(closeButton);
-    container.appendChild(resultList);
-    document.body.appendChild(overlay);
-}
-
+document.getElementById('openGpaCalculator').addEventListener('click', function() {
+    var gpaCalculatorContainer = document.getElementById('gpaCalculatorContainer');
+    gpaCalculatorContainer.style.display = gpaCalculatorContainer.style.display === 'none' ? 'block' : 'none';
 });
+
 
