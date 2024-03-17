@@ -68,6 +68,21 @@ button:hover {
     background-color: #750e1a; /* Darker shade of RMIT red on hover */
 }
 
+/* Adjust the styling for the Submit button */
+button[type="submit"] {
+    display: block; /* Ensure the button takes the full width */
+    width: 100%; /* Make the button full width */
+    margin-top: 20px; /* Increased margin for better spacing */
+}
+
+/* Adjust the styling for the Find Teammate Now button */
+#findTeammateBtn {
+    display: block; /* Ensure the button takes the full width */
+    width: 100%; /* Make the button full width */
+    margin-top: 20px; /* Increased margin for better spacing */
+}
+
+
 #courses {
     margin-top: 30px; /* Increased margin for better separation */
 }
@@ -221,4 +236,123 @@ button:hover {
 
 .result-list li .course-info:last-child {
     margin-bottom: 15px; /* Increased margin */
+}
+
+/* Styling for the "Add Completed Course" button */
+#addCompletedCourse {
+    padding: 10px 20px;
+    background-color: #28a745; /* Green color */
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px; /* Add some space between the buttons */
+    font-size: 16px;
+}
+
+#addCompletedCourse:hover {
+    background-color: #218838; /* Darker shade of green */
+}
+
+/* Styling for the "Calculate GPA" button */
+#calculateGpa {
+    padding: 10px 20px;
+    background-color: #17a2b8; /* Blue color */
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#calculateGpa:hover {
+    background-color: #138496; /* Darker shade of blue */
+}
+
+/* GPA Calculator Entry Styling */
+.gpa-course-entry {
+    margin-bottom: 20px; /* Adds space between each course entry */
+    padding: 15px; /* Padding inside each course entry */
+    border: 1px solid #ddd; /* Adds a subtle border around each course entry */
+    border-radius: 8px; /* Rounded corners for the border */
+    background-color: #f9f9f9; /* Light background color for each entry */
+}
+
+#addCompletedCourse, #calculateGpa {
+    margin-top: 20px; /* Adds more space above the buttons */
+    width: auto; /* Adjust width as needed or keep auto */
+    padding: 10px 15px; /* Adjust padding for better appearance */
+    font-size: 16px; /* Adjust font size as needed */
+}
+
+.dropdown-menu {
+    margin-top: 5px; /* Adds a little space between the input box and dropdown */
+}
+
+/* Additional styles to enhance visual separation and interaction */
+.dropdown-item:hover {
+    background-color: #e1e1e1; /* Changes background on hover for better interaction feedback */
+}
+#gpaResultContainer {
+    margin-top: 20px; /* Space above the result container */
+    padding: 20px; /* Padding inside the container */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #f0f0f0; /* Light grey background */
+    border: 1px solid #ddd; /* Subtle border */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    text-align: center; /* Center the text inside the container */
+    width: 100%; /* Full width of the container */
+    box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+}
+
+#gpaResult {
+    font-size: 20px; /* Larger font size for the result */
+    font-weight: bold; /* Make the GPA result text bold */
+    color: #005eb8; /* Color that matches the RMIT blue theme */
+}
+
+#feedbackFormContainer {
+    width: 80%;
+    margin: 50px auto; /* Adds more space around the container and centers it */
+    padding: 40px;
+    background-color: #ffffff; /* Keeps the background white for clarity */
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    border: 1px solid #ddd; /* Adds a subtle border */
+}
+
+#feedbackFormContainer h2 {
+    text-align: center;
+    color: #c8102e; /* RMIT red for heading to maintain theme consistency */
+    margin-bottom: 30px; /* More space below the heading */
+}
+
+#feedbackForm textarea {
+    width: calc(100% - 24px); /* Adjusts width to ensure padding does not exceed container width */
+    padding: 12px;
+    border: 2px solid #005eb8; /* RMIT blue for textarea border */
+    border-radius: 6px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #ffffff; /* White background for contrast */
+    resize: vertical; /* Allows vertical resizing */
+    box-sizing: border-box; /* Includes padding and border in element's total width and height */
+    margin-bottom: 20px; /* Adds space below the textarea */
+}
+
+#feedbackForm button {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background-color: #c8102e; /* RMIT red for button */
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 10px; /* Adds a bit of space above the button */
+}
+
+#feedbackForm button:hover {
+    background-color: #a00f25; /* Darker shade of red for button hover */
 }
