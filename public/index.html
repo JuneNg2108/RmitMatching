@@ -5,38 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Team Formation</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="node_modules/jquery/dist/jquery.min.js"></script>
-    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-
 </head>
 <body>
     <h1>RMIT Team Finding</h1>
     <form id="teamFormationForm">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required><br>
-
+        
         <label for="studentID">Student ID:</label>
-        <input type="text" id="studentID" name="studentID" required><br>
-
+        <input type="text" id="studentID" name="studentID" pattern="s[0-9]{7}" title="Please enter a valid student ID starting with 's' followed by 7 digits" required><br>
+        
         <label for="mobile">Mobile Phone Number:</label>
-        <input type="tel" id="mobile" name="mobile" required><br>
-
+        <input type="text" id="mobile" name="mobile" required><br>
+        
         <label for="universityEmail">University Email:</label>
-        <input type="email" id="universityEmail" name="universityEmail" required><br>
-
+        <input type="email" id="universityEmail" name="universityEmail" pattern="s[0-9]{7}@rmit\.edu\.vn" title="Please enter a valid university email matching the format 's1234567@rmit.edu.vn'" required><br>
+        
         <label for="interests">Interests:</label>
         <textarea id="interests" name="interests" rows="4" cols="50" required></textarea><br>
-
+        
         <label for="overallGPA">Current Overall GPA:</label>
-        <input type="number" id="overallGPA" name="overallGPA" min="0" max="4" step="0.1" required><br>
+        <input type="number" id="overallGPA" name="overallGPA" min="0" max="4" step="0.1" required>
+        <button type="button" id="openGpaCalculator">Don't know your GPA? Click here</button><br>
 
+        <!-- GPA Calculator Container -->
+        <div id="gpaCalculatorContainer" style="display:none;">
+            <h2>GPA Calculator</h2>
+            <div id="gpaCoursesContainer"></div> <!-- Container for adding courses and grades -->
+            <button type="button" id="addCompletedCourse">Add Completed Course</button>
+            <button type="button" id="calculateGpa">Calculate GPA</button>
+        </div>
+
+        <div id="gpaResultContainer" style="display:none;">
+            <div id="gpaResult">Your GPA will be displayed here.</div>
+        </div>
+        
         <div id="courses">
             <!-- Initial course box, hidden by default -->
             <div class="course" style="display: none;">
                 <label for="courseTitle">Course:</label>
-                <input type="text" class="courseTitle" name="courseTitle[]" >
+                <input type="text" class="courseTitle" name="courseTitle[]">
                 
                 <label for="desiredGPA">Desired GPA:</label>
                 <select class="desiredGPA" name="desiredGPA[]">
@@ -54,15 +62,236 @@
         </div>
 
         <button type="button" id="addCourse">Add Course</button><br>
-
         <button type="submit">Submit</button>
         <button id="findTeammateBtn">Find Teammate Now</button>
-
-         <!-- Add the resultList here -->
-    <ul id="resultList"></ul>
-
+        <ul id="resultList"></ul> <!-- Add the resultList here -->
     </form>
 
+    <div id="feedbackFormContainer" style="background-color: #f7f7f7; padding: 20px; border-radius: 8px; margin-top: 40px;">
+        <h2 style="text-align: center;">Your Feedback Matters</h2>
+        <p style="text-align: center; margin-bottom: 20px;">Help us improve by sharing your thoughts.</p>
+        <form id="feedbackForm" style="max-width: 500px; margin: auto;">
+            <textarea id="feedbackText" name="feedback" rows="4" placeholder="Your feedback..." required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 20px;"></textarea>
+            <button type="submit" style="display: block; width: 100%; padding: 10px; border: none; border-radius: 5px; background-color: #005eb8; color: white; cursor: pointer;">Submit Feedback</button>
+        </form>
+    </div>
+    
+    
+    
+
+    <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Form submission event
+        document.getElementById('teamFormationForm').addEventListener('submit', function(event) {
+            // Perform custom validation before submission
+            var studentID = document.getElementById('studentID').value;
+            var universityEmail = document.getElementById('universityEmail').value;
+
+            // Check if student ID matches the required format
+            if (!/^s[0-9]{7}$/.test(studentID)) {
+                alert('Student ID must start with "s" followed by 7 digits.');
+                event.preventDefault(); // Prevent form submission
+                return;
+            }
+
+            // Check if university email matches the required format
+            if (!/^s[0-9]{7}@rmit\.edu\.vn$/.test(universityEmail)) {
+                alert('University email must match the format "s1234567@rmit.edu.vn".');
+                event.preventDefault(); // Prevent form submission
+                return;
+            }
+
+            // Display success message after successful submission
+            alert('Form submitted successfully!');
+        });
+
+        // Function to handle connecting with a teammate
+        function connectWithTeammate(studentID) {
+            // Replace this with your actual implementation to handle connecting with a teammate
+            alert('Connecting with student ID: ' + studentID);
+        }
+
+        // Add event listener to the result list for connecting with teammates
+        document.getElementById('resultList').addEventListener('click', function(event) {
+            if (event.target.classList.contains('connectButton')) {
+                var studentID = event.target.dataset.studentId;
+                connectWithTeammate(studentID);
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('addCompletedCourse').addEventListener('click', function() {
+                const gpaCoursesContainer = document.getElementById('gpaCoursesContainer');
+                
+                const entryDiv = document.createElement('div');
+                entryDiv.classList.add('gpa-course-entry');
+                
+                const courseInput = document.createElement('input');
+                courseInput.setAttribute('type', 'text');
+                courseInput.classList.add('course-search');
+                entryDiv.appendChild(courseInput);
+        
+                // Store credit points in a hidden input
+                const creditInput = document.createElement('input');
+                creditInput.setAttribute('type', 'hidden');
+                creditInput.classList.add('course-credit');
+                entryDiv.appendChild(creditInput);
+                
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.classList.add('dropdown-menu');
+                entryDiv.appendChild(dropdownMenu);
+                
+                const gradeDropdown = createGradeDropdown();
+                entryDiv.appendChild(gradeDropdown);
+                
+                gpaCoursesContainer.appendChild(entryDiv);
+                
+                fetchCourses(courseInput, creditInput, dropdownMenu);
+            });
+            
+            document.getElementById('calculateGpa').addEventListener('click', calculateGPA);
+        });
+        
+        function fetchCourses(courseInput, creditInput, dropdownMenu) {
+            fetch("courses.json")
+                .then(response => response.json())
+                .then(data => {
+                    // Assuming data is an array of course objects
+                    const courses = data.filter(course => course != null && course.hasOwnProperty("COURSE CODE") && course.hasOwnProperty("COURSE TITLE"));
+                    courseInput.addEventListener("input", function() {
+                        const userInput = courseInput.value.toLowerCase();
+                        const filteredCourses = courses.filter(course => {
+                            return course["COURSE CODE"].toLowerCase().includes(userInput) || course["COURSE TITLE"].toLowerCase().includes(userInput);
+                        });
+                        renderDropdown(filteredCourses, courseInput, creditInput, dropdownMenu);
+                    });
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
+        
+        function renderDropdown(courses, courseInput, creditInput, dropdownMenu) {
+            dropdownMenu.innerHTML = "";
+            if (courses.length > 0) {
+                courses.forEach(course => {
+                    const option = document.createElement("div");
+                    option.classList.add("dropdown-item");
+                    option.textContent = `${course["COURSE CODE"]} - ${course["COURSE TITLE"]} - ${course["CAMPUS"]} - ${course["SEMESTER"]}`;
+                    option.addEventListener("click", () => {
+                        courseInput.value = `${course["COURSE CODE"]} - ${course["COURSE TITLE"]}`;
+                        creditInput.value = course["CREDIT POINTS"] || '0'; // Fallback to '0' if "CREDIT POINTS" is missing
+                        dropdownMenu.style.display = "none"; // Hide dropdown after selection
+                    });
+                    dropdownMenu.appendChild(option);
+                });
+                dropdownMenu.style.display = "block";
+            } else {
+                dropdownMenu.style.display = "none";
+            }
+        }
+        function createGradeDropdown() {
+            const gradeDropdown = document.createElement('select');
+            ['HD', 'DI', 'CR', 'PA'].forEach((grade, index) => {
+                const option = document.createElement('option');
+                option.value = [4, 3, 2, 1][index];
+                option.textContent = grade;
+                gradeDropdown.appendChild(option);
+            });
+            return gradeDropdown;
+        }
+
+        function calculateGPA() {
+            let totalPoints = 0;
+            let totalCreditPoints = 0;
+        
+            document.querySelectorAll('.gpa-course-entry').forEach(entry => {
+                const gradeValue = parseFloat(entry.querySelector('select').value);
+                const creditPoints = parseFloat(entry.querySelector('.course-credit').value); // Retrieve credit points for each course
+        
+                totalPoints += gradeValue * creditPoints;
+                totalCreditPoints += creditPoints;
+            });
+        
+            const gpa = totalPoints / totalCreditPoints;
+            const gpaResultContainer = document.getElementById('gpaResultContainer');
+            const gpaResult = document.getElementById('gpaResult');
+        
+            gpaResult.textContent = "Your calculated GPA is: " + (Math.round(gpa * 100) / 100).toFixed(2);
+        
+            // Make the GPA result container visible
+            gpaResultContainer.style.display = "block";
+        
+            // Remove the previous percentage message if it exists
+            const existingPercentageDisplay = document.getElementById('gpaPercentageMessage');
+            if (existingPercentageDisplay) {
+                existingPercentageDisplay.remove();
+            }
+        
+            fetch(`/api/gpaPercentage/${gpa}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Construct the percentage message
+                    const percentageMessage = `Your GPA is higher than ${data.percentage}% of students.`;
+                    const percentageDisplay = document.createElement('p');
+                    percentageDisplay.id = 'gpaPercentageMessage'; // Assign an ID for easy identification and removal
+                    percentageDisplay.textContent = percentageMessage;
+        
+                    // Append the percentage message to the result container
+                    gpaResultContainer.appendChild(percentageDisplay);
+                })
+                .catch(error => {
+                    console.error('Error fetching GPA percentage:', error);
+                });
+        }        
+        </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const feedbackForm = document.getElementById('feedbackForm');
+            
+                feedbackForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+            
+                    const feedback = document.getElementById('feedbackText').value;
+                    const name = document.getElementById('name').value;
+                    const studentID = document.getElementById('studentID').value;
+                    const universityEmail = document.getElementById('universityEmail').value;
+            
+                    const feedbackData = {
+                        name: name,
+                        studentID: studentID,
+                        universityEmail: universityEmail,
+                        feedback: feedback
+                    };
+            
+                    fetch('/submit-feedback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(feedbackData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Feedback submission failed');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Feedback submitted successfully');
+                        alert('Thank you for your feedback!');
+                        // Clear the feedback form
+                        document.getElementById('feedbackText').value = '';
+                    })
+                    .catch(error => {
+                        console.error('Error submitting feedback:', error);
+                    });
+                });
+            });
+            
+        </script>
+        
 </body>
 </html>
