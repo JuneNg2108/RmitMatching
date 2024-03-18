@@ -238,6 +238,8 @@ button[type="submit"] {
     margin-bottom: 15px; /* Increased margin */
 }
 
+
+
 /* Styling for the "Add Completed Course" button */
 #addCompletedCourse {
     padding: 10px 20px;
@@ -312,13 +314,19 @@ button[type="submit"] {
 }
 
 #feedbackFormContainer {
-    width: 80%;
+    width: 60%;
     margin: 50px auto; /* Adds more space around the container and centers it */
     padding: 40px;
-    background-color: #ffffff; /* Keeps the background white for clarity */
+    background-color: #f7f7f7; /* Keeps the background white for clarity */
     border-radius: 8px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
     border: 1px solid #ddd; /* Adds a subtle border */
+    margin-top: 40px;
+}
+
+#feedbackFormContainer p {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 #feedbackFormContainer h2 {
@@ -355,4 +363,38 @@ button[type="submit"] {
 
 #feedbackForm button:hover {
     background-color: #a00f25; /* Darker shade of red for button hover */
+}
+
+/* Media Queries */
+@media only screen and (max-width: 768px) {
+    /* Adjust the width of form elements */
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="tel"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100%;
+    }
+
+    /* Adjust margins and paddings for better spacing */
+    form {
+        padding: 20px;
+    }
+    
+#feedbackFormContainer {
+    width:72%;
+
+}
+
+}
+
+
+@media only screen and (min-width: 769px) {
+    /* Adjust form width and margins */
+    form {
+        width: 60%;
+        margin: auto;
+    }
 }
