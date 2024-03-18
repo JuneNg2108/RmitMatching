@@ -13,7 +13,7 @@
         <input type="text" id="name" name="name" required><br>
         
         <label for="studentID">Student ID:</label>
-        <input type="text" id="studentID" name="studentID" pattern="s[0-9]{7}" title="Please enter a valid student ID starting with 's' followed by 7 digits" required><br>
+        <input type="text" id="studentID" name="studentID" pattern="[sS][0-9]{7}" title="Please enter a valid student ID starting with 'S' or 's' followed by 7 digits" required><br>
         
         <label for="mobile">Mobile Phone Number:</label>
         <input type="text" id="mobile" name="mobile" required><br>
@@ -67,36 +67,33 @@
         <ul id="resultList"></ul> <!-- Add the resultList here -->
     </form>
 
-    <div id="feedbackFormContainer" style="background-color: #f7f7f7; padding: 20px; border-radius: 8px; margin-top: 40px;">
-        <h2 style="text-align: center;">Your Feedback Matters</h2>
-        <p style="text-align: center; margin-bottom: 20px;">Help us improve by sharing your thoughts.</p>
+    <div id="feedbackFormContainer">
+        <h2>Your Feedback Matters</h2>
+        <p>Help us improve by sharing your thoughts.</p>
         <form id="feedbackForm" style="max-width: 500px; margin: auto;">
-            <textarea id="feedbackText" name="feedback" rows="4" placeholder="Your feedback..." required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 20px;"></textarea>
+            <textarea id="feedbackText" name="feedback" rows="6" placeholder="Your feedback..." required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 20px;"></textarea>
             <button type="submit" style="display: block; width: 100%; padding: 10px; border: none; border-radius: 5px; background-color: #005eb8; color: white; cursor: pointer;">Submit Feedback</button>
         </form>
     </div>
     
-    
-    
-
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
     <script>
         // Form submission event
         document.getElementById('teamFormationForm').addEventListener('submit', function(event) {
             // Perform custom validation before submission
-            var studentID = document.getElementById('studentID').value;
+            var studentID = document.getElementById('studentID').value.toLowerCase(); // Convert to lowercase
             var universityEmail = document.getElementById('universityEmail').value;
 
             // Check if student ID matches the required format
-            if (!/^s[0-9]{7}$/.test(studentID)) {
-                alert('Student ID must start with "s" followed by 7 digits.');
+            if (!/^[sS][0-9]{7}$/.test(studentID)) {
+                alert('Student ID must start with "S" or "s" followed by 7 digits.');
                 event.preventDefault(); // Prevent form submission
                 return;
             }
 
             // Check if university email matches the required format
-            if (!/^s[0-9]{7}@rmit\.edu\.vn$/.test(universityEmail)) {
+            if (!/^[sS][0-9]{7}@rmit\.edu\.vn$/.test(universityEmail)) {
                 alert('University email must match the format "s1234567@rmit.edu.vn".');
                 event.preventDefault(); // Prevent form submission
                 return;
